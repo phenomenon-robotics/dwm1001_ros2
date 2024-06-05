@@ -43,13 +43,13 @@ def generate_launch_description() -> LaunchDescription:
             description='Name of the tag namespace'
         )
 
-    config_file_val = LaunchConfiguration('config_file')
-    default_config_file_path = PathJoinSubstitution([FindPackageShare('dwm1001_launch'),
+    dwm_config_val = LaunchConfiguration('dwm_config')
+    default_dwm_config_path = PathJoinSubstitution([FindPackageShare('dwm1001_launch'),
                                                      'config',
                                                      'default_active.yaml'])
-    config_file_launch_arg = DeclareLaunchArgument(
-        'config_file',
-        default_value=default_config_file_path,
+    dwm_config_launch_arg = DeclareLaunchArgument(
+        'dwm_config',
+        default_value=default_dwm_config_path,
         description='Configuration file for the active node'
     )
 
@@ -57,9 +57,9 @@ def generate_launch_description() -> LaunchDescription:
         package="dwm1001_driver",
         executable="active_tag",
         namespace=tag_namespace_val,
-        parameters=[PathJoinSubstitution([FindPackageShare('dwm1001_launch'), 'config', config_file_val])]
+        parameters=[PathJoinSubstitution([FindPackageShare('dwm1001_launch'), 'config', dwm_config_val])]
     )
 
     return LaunchDescription(
-        [tag_namespace_arg, config_file_launch_arg, dwm1001_driver]
+        [tag_namespace_arg, dwm_config_launch_arg, dwm1001_driver]
     )
