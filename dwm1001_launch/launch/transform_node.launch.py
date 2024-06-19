@@ -23,14 +23,14 @@ def generate_launch_description() -> LaunchDescription:
     tag_topic_value = LaunchConfiguration('tag_topic')
     tag_id_arg = DeclareLaunchArgument(
         'tag_topic',
-        default_value=TextSubstitution(text='output/DW5188'),
+        default_value=TextSubstitution(text='output/CHANGEME'),
         description="The tag's output topic needed for the transform node."
     )
 
     dwm_transform = Node(
         package="dwm1001_transform",
         executable="dwm1001_transform",
-        name="dwm1001_transform",
+        name="dwm_transform",
         remappings=[("input/tag_position", tag_topic_value)],
     )
 

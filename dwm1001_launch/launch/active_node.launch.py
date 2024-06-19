@@ -36,13 +36,6 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description() -> LaunchDescription:
 
-    tag_namespace_val = LaunchConfiguration('tag_namespace')
-    tag_namespace_arg = DeclareLaunchArgument(
-            'tag_namespace',
-            default_value=TextSubstitution(text='active'),
-            description='Name of the tag namespace'
-        )
-
     dwm_config_val = LaunchConfiguration('dwm_config')
     default_dwm_config_path = PathJoinSubstitution([FindPackageShare('dwm1001_launch'),
                                                      'config',
@@ -56,10 +49,9 @@ def generate_launch_description() -> LaunchDescription:
     dwm1001_driver = Node(
         package="dwm1001_driver",
         executable="active_tag",
-        namespace=tag_namespace_val,
         parameters=[PathJoinSubstitution([FindPackageShare('dwm1001_launch'), 'config', dwm_config_val])]
     )
 
     return LaunchDescription(
-        [tag_namespace_arg, dwm_config_launch_arg, dwm1001_driver]
+        [dwm_config_launch_arg, dwm1001_driver]
     )

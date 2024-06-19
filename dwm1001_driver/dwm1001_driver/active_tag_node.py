@@ -24,7 +24,7 @@ import serial
 
 class ActiveTagNode(Node):
     def __init__(self) -> None:
-        super().__init__("active_tag")
+        super().__init__("dwm_active")
 
         self._declare_parameters()
 
@@ -37,8 +37,9 @@ class ActiveTagNode(Node):
         self.dwm_handle.start_position_reporting()
         self.get_logger().info("Started position reporting.")
 
-        tag_topic = f"output/{self.get_parameter('tag_id').value}"
+        tag_topic = f"~/output/{self.get_parameter('tag_id').value}"
         self.point_publisher = self.create_publisher(PointStamped, tag_topic, 1)
+        self.get_logger().info(f"Publishing DWM postions on {tag_topic}")
         self.timer = self.create_timer(1 / 25, self.timer_callback)
 
     def _open_serial_port(self, serial_port: str) -> serial.Serial:
