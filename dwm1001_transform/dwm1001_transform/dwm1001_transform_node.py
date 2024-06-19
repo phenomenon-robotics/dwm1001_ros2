@@ -75,12 +75,12 @@ def transform_msg_to_matrix(transform: Transform) -> np.ndarray:
 
 class Dwm1001TransformNode(Node):
     def __init__(self) -> None:
-        super().__init__("dwm1001_transform")
+        super().__init__("dwm_transform")
 
         self.tag_position_sub = self.create_subscription(
             PointStamped, "input/tag_position", self._tag_position_callback, 1
         )
-        self.odom_pub = self.create_publisher(Odometry, "output/odometry/ips", 1)
+        self.odom_pub = self.create_publisher(Odometry, "~/output/odometry/ips", 1)
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)

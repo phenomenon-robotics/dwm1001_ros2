@@ -21,31 +21,23 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description() -> LaunchDescription:
-
-    tag_namespace_val = LaunchConfiguration('tag_namespace')
-    tag_namespace_arg = DeclareLaunchArgument(
-            'tag_namespace',
-            default_value=TextSubstitution(text='passive'),
-            description='Name of the tag namespace'
-        )
     
-    config_file_val = LaunchConfiguration('config_file')
+    config_file_val = LaunchConfiguration('dwm_config')
     default_config_file_path = PathJoinSubstitution([FindPackageShare('dwm1001_launch'),
                                                      'config',
                                                      'default_passive.yaml'])
     config_file_launch_arg = DeclareLaunchArgument(
-        'config_file',
+        'dwm_config',
         default_value=default_config_file_path,
-        description='Configuration file for the active node'
+        description='Configuration file for the passive node'
     )
 
     dwm1001_driver = Node(
         package="dwm1001_driver",
         executable="passive_tag",
-        namespace=tag_namespace_val,
         parameters=[PathJoinSubstitution([FindPackageShare('dwm1001_launch'), 'config', config_file_val])],
     )
 
     return LaunchDescription(
-        [tag_namespace_arg, config_file_launch_arg, dwm1001_driver]
+        [config_file_launch_arg, dwm1001_driver]
     )
