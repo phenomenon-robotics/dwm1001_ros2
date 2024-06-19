@@ -23,7 +23,7 @@ def generate_launch_description() -> LaunchDescription:
     tag_topic_value = LaunchConfiguration('tag_topic')
     tag_id_arg = DeclareLaunchArgument(
         'tag_topic',
-        default_value=TextSubstitution(text='output/DW5188'),
+        default_value=TextSubstitution(text='output/CHANGEME'),
         description="The tag's output topic needed for the transform node."
     )
 

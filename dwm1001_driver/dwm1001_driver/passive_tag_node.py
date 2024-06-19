@@ -25,7 +25,7 @@ from collections import deque
 
 class PassiveTagNode(Node):
     def __init__(self) -> None:
-        super().__init__("passive_tag")
+        super().__init__("dwm_passive")
 
         self._declare_parameters()
 
@@ -128,7 +128,7 @@ class PassiveTagNode(Node):
                 f"Discovered new active tag '{tag_label}'. Creating publisher."
             )
 
-            tag_topic = f'output/{tag_label}'
+            tag_topic = f'~/output/{tag_label}'
             self.publishers_dict[tag_label] = self.create_publisher(
                 PointStamped, tag_topic, 1
             )
