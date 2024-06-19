@@ -30,7 +30,7 @@ def generate_launch_description() -> LaunchDescription:
     dwm_transform = Node(
         package="dwm1001_transform",
         executable="dwm1001_transform",
-        name="dwm1001_transform",
+        name="dwm_transform",
         remappings=[("input/tag_position", tag_topic_value)],
     )
 
