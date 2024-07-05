@@ -14,6 +14,7 @@
 
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor, ParameterType
 
 from geometry_msgs.msg import Point, PointStamped, Quaternion, Transform, Vector3
 from nav_msgs.msg import Odometry
@@ -77,6 +78,17 @@ class Dwm1001TransformNode(Node):
     def __init__(self) -> None:
         super().__init__("dwm_transform")
 
+        self._declare_parameters()
+
+        covar_position = self.get_parameter('position_cov').value
+        self.get_logger().info(f"DWM position covariance: {covar_position}")
+        # Initialize the covariance matrix, but only position will be set based on parameters
+        self._covar = [0.0] * 36
+        # Assuming uncorrelated x,y,z
+        self._covar[0] = covar_position[0]  # x
+        self._covar[4] = covar_position[4]  # y
+        self._covar[8] = covar_position[8]  # z
+
         self.tag_position_sub = self.create_subscription(
             PointStamped, "input/tag_position", self._tag_position_callback, 1
         )
@@ -84,6 +96,19 @@ class Dwm1001TransformNode(Node):
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
+
+    def _declare_parameters(self):
+        position_cov_descriptor = ParameterDescriptor(
+            description="The covariance of the DWM sensor. It has a default value of 0.01, \
+                        but it is recommended that you take measurements in your own space.",
+            type=ParameterType.PARAMETER_DOUBLE_ARRAY,
+            read_only=True,
+        )
+        self.declare_parameter("position_cov", 
+                               [0.01, 0.0, 0.0,
+                                0.0, 0.01, 0.0,
+                                0.0, 0.0, 0.01],
+                                position_cov_descriptor)
 
     def _tag_position_callback(self, msg: PointStamped) -> None:
         try:
@@ -104,6 +129,7 @@ class Dwm1001TransformNode(Node):
         map_odom.header.stamp = self.get_clock().now().to_msg()
         map_odom.header.frame_id = "map"
         map_odom.pose.pose.position = augmented_vector_to_point_msg(map_point)
+        map_odom.pose.covariance = self._covar
         map_odom.twist.covariance[0] = -1
 
         self.odom_pub.publish(map_odom)
