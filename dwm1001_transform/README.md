@@ -28,7 +28,7 @@ This node transforms incoming DWM1001 tag locations (`PointStamped` messages) fr
 
 ### Parameters
 
-This node does not provide parameters.
++ `position_cov` - An optional parameter to hardcode the covariance for the position reporting. To use this correctly, supply a nine element array as the parameter value that represents the covariance for (x,y,z) reporting.
 
 ### Services
 
