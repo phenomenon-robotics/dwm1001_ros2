@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import deque
+
 import rclpy
 from rclpy.node import Node
 
@@ -24,9 +26,16 @@ import serial
 
 class ActiveTagNode(Node):
     def __init__(self) -> None:
-        super().__init__("dwm_active")
+        super().__init__("dwm_active", allow_undeclared_parameters=True)
 
         self._declare_parameters()
+
+        samples_param = self.get_parameter("samples").value
+        if samples_param > 10:
+            self.get_logger().warn("Number of samples exceeds maximum value. Capping at 10.")
+            samples_param = 10
+        self.get_logger().info(f"Performing moving average with {samples_param} samples.")
+        self._position_buffer = deque(maxlen=samples_param)
 
         serial_port_param = self.get_parameter("serial_port").value
         self.get_logger().info(f"Provided serial port: '{serial_port_param}'")
@@ -60,18 +69,28 @@ class ActiveTagNode(Node):
         exit()
 
     def _declare_parameters(self):
+        
         serial_port_descriptor = ParameterDescriptor(
             description="Device file or COM port associated with DWM1001",
             type=ParameterType.PARAMETER_STRING,
             read_only=True,
         )
+        
         tag_id_descriptor = ParameterDescriptor(
             description="The ID for the particular DWM1001 device.",
             type=ParameterType.PARAMETER_STRING,
             read_only=True,
         )
-        self.declare_parameter("serial_port", "", serial_port_descriptor)
+
+        samples_descriptor = ParameterDescriptor(
+            description="The number of samples used to perform the moving average. Max = 10",
+            type=ParameterType.PARAMETER_DOUBLE,
+            read_only=True,
+        )
+        self.declare_parameter("samples", 3, samples_descriptor)
         self.declare_parameter("tag_id", "", tag_id_descriptor)
+        self.declare_parameter("serial_port", "", serial_port_descriptor)
+
 
     def timer_callback(self):
         try:
@@ -80,18 +99,25 @@ class ActiveTagNode(Node):
             self.get_logger().warn("Could not parse position report. Skipping it.")
             return
 
-        time_stamp = self.get_clock().now().to_msg()
+        self._position_buffer.append((tag_position.x_m, tag_position.y_m, tag_position.z_m))
 
-        msg = PointStamped()
+        # Nothing reported until the position buffer is filled. Then a moving average is computed.
+        if len(self._position_buffer) == self._position_buffer.maxlen:
 
-        msg.header.stamp = time_stamp
-        msg.header.frame_id = "dwm1001"
+            x_avg = round(sum([point[0] for point in self._position_buffer]) / self._position_buffer.maxlen, 3)
+            y_avg = round(sum([point[1] for point in self._position_buffer]) / self._position_buffer.maxlen, 3)
+            z_avg = round(sum([point[2] for point in self._position_buffer]) / self._position_buffer.maxlen, 3)
 
-        msg.point.x = tag_position.x_m
-        msg.point.y = tag_position.y_m
-        msg.point.z = tag_position.z_m
+            time_stamp = self.get_clock().now().to_msg()
+            msg = PointStamped()
 
-        self.point_publisher.publish(msg)
+            msg.header.stamp = time_stamp
+            msg.header.frame_id = "dwm1001"
+            msg.point.x = x_avg
+            msg.point.y = y_avg
+            msg.point.z = z_avg
+
+            self.point_publisher.publish(msg)
 
 
 def main(args=None):
