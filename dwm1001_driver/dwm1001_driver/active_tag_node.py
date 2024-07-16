@@ -118,6 +118,8 @@ class ActiveTagNode(Node):
             msg.point.z = z_avg
 
             self.point_publisher.publish(msg)
+        else:
+            self.get_logger().warn(f"DWM1001 buffer not filled to {self._position_buffer.maxlen} yet.")
 
 
 def main(args=None):
