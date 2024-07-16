@@ -89,6 +89,7 @@ This node does not provide subscribers.
 |-------|-----------|---------------|----------|-----------|-------------|
 | `~/serial_port` | `string` | `''` | Yes | Yes | Serial port for interfacing with the DWM1001 device. |
 | `~/tag_id` | `string` | `''` | Yes | Yes | The ID for the particular DWM1001 device. |
+| `~/samples` | `int` | `''` | Yes | Yes | The number of samples to use in the driver's moving average. Default is 3 samples. |
 
 
 ### Services
