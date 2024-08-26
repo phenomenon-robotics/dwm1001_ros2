@@ -109,7 +109,7 @@ class Dwm1001TransformNode(Node):
             read_only=True,
         )
         self.declare_parameter("position_cov", 
-                               [],
+                               [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
                                position_cov_descriptor)
 
     def _tag_position_callback(self, msg: PointStamped) -> None:
