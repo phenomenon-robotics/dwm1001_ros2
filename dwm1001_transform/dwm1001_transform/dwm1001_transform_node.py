@@ -88,7 +88,7 @@ class Dwm1001TransformNode(Node):
             # Assuming uncorrelated x,y,z
             self._covar[0] = covar_position[0]  # x
             self._covar[4] = covar_position[4]  # y
-            self._covar[8] = covar_position[8]  # z
+            self._covar[7] = covar_position[7]  # z
         else:
             self.get_logger().info(f"No DWM1001 position covariance supplied.")
             self._covar = None
